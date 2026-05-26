@@ -1,0 +1,309 @@
+openapi: 3.0.0
+servers:
+  - description: Cluster Endpoint
+    url: /api
+info:
+  description: Incident reporting and security event management for Web-In-Cloud system
+  version: "1.0.0"
+  title: IncidentLog API
+  contact:
+    email: your_email@stuba.sk
+  license:
+    name: CC BY 4.0
+    url: "https://creativecommons.org/licenses/by/4.0/"
+tags:
+  - name: incidentLog
+    description: Incident reporting and security events API
+  - name: incidentTypes
+    description: Predefined incident types handled by hospital incident log
+paths:
+  "/incidents":
+    get:
+      tags:
+        - incidentLog
+      summary: Provides the list of incidents
+      operationId: getIncidents
+      description: Returns current and historical incident reports
+      responses:
+        "200":
+          description: List of incident reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Incident"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentsExample"
+    post:
+      tags:
+        - incidentLog
+      summary: Saves new incident
+      operationId: createIncident
+      description: Use this method to store new incident report.
+      requestBody:
+        description: Incident report to store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Incident"
+            examples:
+              request:
+                $ref: "#/components/examples/IncidentExample"
+      responses:
+        "200":
+          description: Created incident report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentExample"
+        "400":
+          description: Missing mandatory properties of input object.
+        "409":
+          description: Incident with the specified id already exists
+  "/incidents/{incidentId}":
+    get:
+      tags:
+        - incidentLog
+      summary: Provides details about incident
+      operationId: getIncident
+      description: Returns detail of one incident report.
+      parameters:
+        - in: path
+          name: incidentId
+          description: ID of the incident
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentExample"
+        "404":
+          description: Incident with such ID does not exist
+
+    put:
+      tags:
+        - incidentLog
+      summary: Updates specific incident
+      operationId: updateIncident
+      description: Updates content of the incident report.
+      parameters:
+        - in: path
+          name: incidentId
+          description: ID of the incident
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Incident report to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Incident"
+            examples:
+              request:
+                $ref: "#/components/examples/IncidentExample"
+      responses:
+        "200":
+          description: Updated incident report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentExample"
+        "403":
+          description: Value of incidentId and data id is mismatching
+        "404":
+          description: Incident with such ID does not exist
+    delete:
+      tags:
+        - incidentLog
+      summary: Deletes specific incident
+      operationId: deleteIncident
+      description: Deletes specific incident report.
+      parameters:
+        - in: path
+          name: incidentId
+          description: ID of the incident
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Incident deleted
+        "404":
+          description: Incident with such ID does not exist
+  "/incident-types":
+    get:
+      tags:
+        - incidentTypes
+      summary: Provides the list of predefined incident types
+      operationId: getIncidentTypes
+      description: Returns list of predefined hospital incident types.
+      responses:
+        "200":
+          description: List of predefined incident types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncidentType"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentTypesExample"
+components:
+  schemas:
+    Incident:
+      type: object
+      required: [id, incidentType, location, occurredAt, description, severity, status]
+      properties:
+        id:
+          type: string
+          example: INC-001
+          description: Unique id of the incident
+        incidentType:
+          type: string
+          example: Bezpečnostná udalosť
+          description: Type of the incident
+        location:
+          type: string
+          example: Urgentný príjem
+          description: Place where the incident occurred
+        occurredAt:
+          type: string
+          format: date-time
+          example: "2038-12-24T10:05:00Z"
+          description: Date and time when the incident occurred
+        description:
+          type: string
+          example: Neoprávnený vstup do vyhradenej zóny.
+          description: Description of the incident
+        severity:
+          $ref: "#/components/schemas/IncidentSeverity"
+        status:
+          $ref: "#/components/schemas/IncidentStatus"
+        attachments:
+          type: array
+          items:
+            type: string
+          example: ["kamera-zaznam.mp4"]
+          description: List of attached files
+        investigationReport:
+          type: string
+          example: Kontaktované bezpečnostné oddelenie.
+          description: Investigation report
+        notes:
+          type: string
+          example: Incident čaká na preverenie.
+          description: Additional notes
+      example:
+        $ref: "#/components/examples/IncidentExample"
+
+    IncidentSeverity:
+      type: string
+      enum: [Nízka, Stredná, Vysoká, Kritická]
+      example: Vysoká
+      description: Severity level of the incident
+
+    IncidentStatus:
+      type: string
+      enum: [Nový, V riešení, Uzatvorený]
+      example: Nový
+      description: Current resolution status of the incident
+
+    IncidentType:
+      type: object
+      required: [code, value]
+      properties:
+        code:
+          type: string
+          example: security-breach
+        value:
+          type: string
+          example: Bezpečnostná udalosť
+        typicalSeverity:
+          $ref: "#/components/schemas/IncidentSeverity"
+        description:
+          type: string
+          example: Neoprávnený vstup alebo porušenie bezpečnostných pravidiel.
+  examples:
+    IncidentExample:
+      summary: Security incident
+      description: Example of one reported hospital security incident
+      value:
+        id: INC-001
+        incidentType: Bezpečnostná udalosť
+        location: Urgentný príjem
+        occurredAt: "2038-12-24T10:05:00.000Z"
+        description: Neoprávnený vstup do vyhradenej zóny.
+        severity: Vysoká
+        status: Nový
+        attachments:
+          - kamera-zaznam.mp4
+        investigationReport: ""
+        notes: Incident čaká na preverenie.
+
+    IncidentsExample:
+      summary: List of incidents
+      description: Example list containing several hospital incidents
+      value:
+        - id: INC-001
+          incidentType: Bezpečnostná udalosť
+          location: Urgentný príjem
+          occurredAt: "2038-12-24T10:05:00.000Z"
+          description: Neoprávnený vstup do vyhradenej zóny.
+          severity: Vysoká
+          status: Nový
+          attachments:
+            - kamera-zaznam.mp4
+          investigationReport: ""
+          notes: Incident čaká na preverenie.
+
+        - id: INC-002
+          incidentType: Technický incident
+          location: Operačná sála 2
+          occurredAt: "2038-12-24T12:15:00.000Z"
+          description: Výpadok monitorovacieho zariadenia počas prípravy zákroku.
+          severity: Stredná
+          status: V riešení
+          attachments:
+            - servisny-log.pdf
+          investigationReport: Kontaktované technické oddelenie.
+          notes: Prebieha diagnostika zariadenia.
+          
+    IncidentTypesExample:
+      summary: List of incident types
+      description: Example list of predefined hospital incident types
+      value:
+        - code: security-breach
+          value: Bezpečnostná udalosť
+          typicalSeverity: Vysoká
+          description: Neoprávnený vstup alebo porušenie bezpečnostných pravidiel.
+        - code: technical-incident
+          value: Technický incident
+          typicalSeverity: Stredná
+          description: Výpadok alebo porucha technického zariadenia.
+        - code: patient-fall
+          value: Pád pacienta
+          typicalSeverity: Stredná
+          description: Pád pacienta v priestoroch nemocnice.
+        - code: medication-error
+          value: Chyba pri liečbe
+          typicalSeverity: Kritická
+          description: Nesprávne podanie alebo evidencia lieku.
