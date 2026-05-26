@@ -43,12 +43,48 @@ func updateIncidentLogFunc(ctx *gin.Context, updater incidentLogUpdater) {
 	switch err {
 	case nil:
 	case db_service.ErrNotFound:
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"status":  "Not Found",
-			"message": "Incident log not found",
-			"error":   err.Error(),
-		})
-		return
+		incidentLog = &IncidentLogDefinition{
+			Id:        incidentLogId,
+			Name:      "Nemocničný bezpečnostný denník",
+			Location:  "Univerzitná nemocnica",
+			Incidents: []Incident{},
+			PredefinedIncidentTypes: []IncidentType{
+				{
+					Value:           "Bezpečnostná udalosť",
+					Code:            "security-breach",
+					TypicalSeverity: "Vysoká",
+					Description:     "Neoprávnený vstup alebo porušenie bezpečnostných pravidiel.",
+				},
+				{
+					Value:           "Technický incident",
+					Code:            "technical-incident",
+					TypicalSeverity: "Stredná",
+					Description:     "Výpadok alebo porucha technického zariadenia.",
+				},
+				{
+					Value:           "Pád pacienta",
+					Code:            "patient-fall",
+					TypicalSeverity: "Stredná",
+					Description:     "Pád pacienta v priestoroch nemocnice.",
+				},
+				{
+					Value:           "Chyba pri liečbe",
+					Code:            "medication-error",
+					TypicalSeverity: "Kritická",
+					Description:     "Nesprávne podanie alebo evidencia lieku.",
+				},
+			},
+		}
+
+		err = db.CreateDocument(ctx.Request.Context(), incidentLogId, incidentLog)
+		if err != nil && err != db_service.ErrConflict {
+			ctx.JSON(http.StatusBadGateway, gin.H{
+				"status":  "Bad Gateway",
+				"message": "Failed to initialize incident log in database",
+				"error":   err.Error(),
+			})
+			return
+		}
 	default:
 		ctx.JSON(http.StatusBadGateway, gin.H{
 			"status":  "Bad Gateway",
