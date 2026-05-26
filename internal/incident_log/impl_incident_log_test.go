@@ -61,7 +61,7 @@ func (suite *IncidentLogSuite) SetupTest() {
 		On("FindDocument", mock.Anything, mock.Anything).
 		Return(
 			&IncidentLogDefinition{
-				Id:       "hospital-security-log",
+				Id:       "incident-log",
 				Name:     "Nemocničný bezpečnostný denník",
 				Location: "Univerzitná nemocnica",
 				Incidents: []Incident{
@@ -104,13 +104,13 @@ func (suite *IncidentLogSuite) Test_UpdateIncident_DbServiceUpdateCalled() {
 	ctx.Set("db_service", suite.dbServiceMock)
 
 	ctx.Params = []gin.Param{
-		{Key: "incidentLogId", Value: "hospital-security-log"},
+		{Key: "incidentLogId", Value: "incident-log"},
 		{Key: "incidentId", Value: "INC-001"},
 	}
 
 	ctx.Request = httptest.NewRequest(
 		"PUT",
-		"/incident-log/hospital-security-log/incidents/INC-001",
+		"/incident-log/incident-log/incidents/INC-001",
 		strings.NewReader(json),
 	)
 
@@ -124,7 +124,7 @@ func (suite *IncidentLogSuite) Test_UpdateIncident_DbServiceUpdateCalled() {
 		suite.T(),
 		"UpdateDocument",
 		mock.Anything,
-		"hospital-security-log",
+		"incident-log",
 		mock.Anything,
 	)
 }

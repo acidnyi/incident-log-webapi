@@ -302,7 +302,7 @@ components:
       properties:
         id:
           type: string
-          example: hospital-security-log
+          example: incident-log
           description: Unique identifier of the incident log
         name:
           type: string
@@ -389,7 +389,7 @@ components:
       summary: Sample hospital incident log
       description: Example of incident log with incidents and predefined incident types
       value:
-        id: hospital-security-log
+        id: incident-log
         name: Nemocničný bezpečnostný denník
         location: Univerzitná nemocnica
         incidents:

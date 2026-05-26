@@ -47,7 +47,7 @@ db[collection].createIndex({ id: 1 });
 
 let result = db[collection].insertMany([
     {
-        id: "hospital-security-log",
+        id: "incident-log",
         name: "Nemocničný bezpečnostný denník",
         location: "Univerzitná nemocnica",
         incidents: [
