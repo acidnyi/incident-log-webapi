@@ -1,3 +1,3 @@
 *.exe
 *.exe~
-./ambulance-api-service
+./incident-log-api-service
