@@ -1,0 +1,5 @@
+internal/incident_log/api_*
+internal/incident_log/model_*
+internal/incident_log/routers.go
+build/
+deployments

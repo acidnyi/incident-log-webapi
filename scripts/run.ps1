@@ -36,6 +36,9 @@ switch ($command) {
     "mongo" {
         mongo up
     }
+    "docker" {
+        docker build -t ergese/incident-log-webapi:local-build -f ${ProjectRoot}/build/docker/Dockerfile .
+    }
     default {
         throw "Unknown command: $command"
     }
