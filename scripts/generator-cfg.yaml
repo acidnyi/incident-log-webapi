@@ -1,0 +1,9 @@
+generatorName: go-gin-server
+outputDir: /local
+inputSpec: /local/api/incident-log.openapi.yaml
+enablePostProcessFile: true
+
+additionalProperties:
+  apiPath: internal/incident_log
+  packageName: incident_log
+  interfaceOnly: true

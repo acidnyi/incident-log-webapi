@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/acidnyi/incident-log-webapi/api"
+	"github.com/acidnyi/incident-log-webapi/internal/incident_log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +28,13 @@ func main() {
 	engine.Use(gin.Recovery())
 
 	// request routings
+	handleFunctions := &incident_log.ApiHandleFunctions{
+		IncidentLogAPI:   incident_log.NewIncidentLogApi(),
+		IncidentTypesAPI: incident_log.NewIncidentTypesApi(),
+	}
+
+	incident_log.NewRouterWithGinEngine(engine, *handleFunctions)
+
 	engine.GET("/openapi", api.HandleOpenApi)
 
 	engine.Run(":" + port)
