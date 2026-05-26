@@ -34,6 +34,9 @@ func updateIncidentLogFunc(ctx *gin.Context, updater incidentLogUpdater) {
 	}
 
 	incidentLogId := ctx.Param("incidentLogId")
+	if incidentLogId == "" {
+		incidentLogId = "incident-log"
+	}
 
 	incidentLog, err := db.FindDocument(ctx.Request.Context(), incidentLogId)
 
