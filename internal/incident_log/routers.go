@@ -65,6 +65,8 @@ type ApiHandleFunctions struct {
 
 	// Routes for the IncidentLogAPI part of the API
 	IncidentLogAPI IncidentLogAPI
+	// Routes for the IncidentLogsAPI part of the API
+	IncidentLogsAPI IncidentLogsAPI
 	// Routes for the IncidentTypesAPI part of the API
 	IncidentTypesAPI IncidentTypesAPI
 }
@@ -100,6 +102,18 @@ func getRoutes(handleFunctions ApiHandleFunctions) []Route {
 			http.MethodPut,
 			"/api/incidents/:incidentId",
 			handleFunctions.IncidentLogAPI.UpdateIncident,
+		},
+		{
+			"CreateIncidentLog",
+			http.MethodPost,
+			"/api/incident-log",
+			handleFunctions.IncidentLogsAPI.CreateIncidentLog,
+		},
+		{
+			"DeleteIncidentLog",
+			http.MethodDelete,
+			"/api/incident-log/:incidentLogId",
+			handleFunctions.IncidentLogsAPI.DeleteIncidentLog,
 		},
 		{
 			"GetIncidentTypes",

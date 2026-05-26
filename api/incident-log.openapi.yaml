@@ -16,6 +16,8 @@ tags:
     description: Incident reporting and security events API
   - name: incidentTypes
     description: Predefined incident types handled by hospital incident log
+  - name: incidentLogs
+    description: Incident log definitions
 paths:
   "/incidents":
     get:
@@ -167,6 +169,57 @@ paths:
               examples:
                 response:
                   $ref: "#/components/examples/IncidentTypesExample"
+  "/incident-log":
+    post:
+      tags:
+        - incidentLogs
+      summary: Saves new incident log definition
+      operationId: createIncidentLog
+      description: Use this method to initialize new incident log in the system
+      requestBody:
+        description: Incident log details to store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncidentLogDefinition"
+            examples:
+              request:
+                $ref: "#/components/examples/IncidentLogDefinitionExample"
+      responses:
+        "200":
+          description: Stored incident log definition
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncidentLogDefinition"
+              examples:
+                response:
+                  $ref: "#/components/examples/IncidentLogDefinitionExample"
+        "400":
+          description: Missing mandatory properties of input object.
+        "409":
+          description: Incident log with the specified id already exists
+
+  "/incident-log/{incidentLogId}":
+    delete:
+      tags:
+        - incidentLogs
+      summary: Deletes specific incident log
+      operationId: deleteIncidentLog
+      description: Use this method to delete the specific incident log from the system.
+      parameters:
+        - in: path
+          name: incidentLogId
+          description: ID of the incident log
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Incident log deleted
+        "404":
+          description: Incident log with such ID does not exist
 components:
   schemas:
     Incident:
@@ -242,6 +295,30 @@ components:
         description:
           type: string
           example: Neoprávnený vstup alebo porušenie bezpečnostných pravidiel.
+
+    IncidentLogDefinition:
+      type: object
+      required: [id, name, location]
+      properties:
+        id:
+          type: string
+          example: hospital-security-log
+          description: Unique identifier of the incident log
+        name:
+          type: string
+          example: Nemocničný bezpečnostný denník
+          description: Human readable display name
+        location:
+          type: string
+          example: Univerzitná nemocnica
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        predefinedIncidentTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentType"
   examples:
     IncidentExample:
       summary: Security incident
@@ -307,3 +384,32 @@ components:
           value: Chyba pri liečbe
           typicalSeverity: Kritická
           description: Nesprávne podanie alebo evidencia lieku.
+
+    IncidentLogDefinitionExample:
+      summary: Sample hospital incident log
+      description: Example of incident log with incidents and predefined incident types
+      value:
+        id: hospital-security-log
+        name: Nemocničný bezpečnostný denník
+        location: Univerzitná nemocnica
+        incidents:
+          - id: INC-001
+            incidentType: Bezpečnostná udalosť
+            location: Urgentný príjem
+            occurredAt: "2038-12-24T10:05:00.000Z"
+            description: Neoprávnený vstup do vyhradenej zóny.
+            severity: Vysoká
+            status: Nový
+            attachments:
+              - kamera-zaznam.mp4
+            investigationReport: ""
+            notes: Incident čaká na preverenie.
+        predefinedIncidentTypes:
+          - code: security-breach
+            value: Bezpečnostná udalosť
+            typicalSeverity: Vysoká
+            description: Neoprávnený vstup alebo porušenie bezpečnostných pravidiel.
+          - code: technical-incident
+            value: Technický incident
+            typicalSeverity: Stredná
+            description: Výpadok alebo porucha technického zariadenia.
