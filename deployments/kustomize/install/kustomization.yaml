@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+configMapGenerator:
+  - name: incident-log-webapi-mongodb-init
+    files:
+      - params/init-db.js
+  - name: incident-log-webapi-config
+    literals:
+      - database=incident-log
+      - collection=incident-log
+
+patches:
+  - path: patches/webapi.deployment.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: incident-log-webapi
